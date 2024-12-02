@@ -1,7 +1,43 @@
-package PACKAGE_NAME;/**
-*Coded By: Era Boy
-*Version: v0.1.0
-**/
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+
+/**
+ * Coded By: Era Boy
+ * Version: v0.1.0
+ **/
 
 public class TicketPool {
+    private final int maximumTicketCapacity; // it means pool's have the maximum capacity of tickets
+    private final List<Ticket> ticketQueue;
+
+    // Ticket pool constructor
+    public TicketPool(int maximumTicketCapacity) {
+        this.maximumTicketCapacity = maximumTicketCapacity;
+        this.ticketQueue = Collections.synchronizedList(new LinkedList<>());
+    }
+
+    // Add Tickets
+    public synchronized boolean addTickets(List<Ticket> addTicket) {
+        if (ticketQueue.size() + addTicket.size() <= maximumTicketCapacity) {
+            ticketQueue.addAll(addTicket); // adding the all tickets.
+            System.out.println("Ticket added: " + addTicket + "Current total: " + ticketQueue.size());
+            return true;
+        } else {
+            System.out.println("Ticket Pool is full. Unable the add tickets. Please Try again.");
+            return false;
+        }
+    }
+
+    //Removing ticket
+    public synchronized Ticket removeTicket() {
+        if (!ticketQueue.isEmpty()) { // check the not empty the ticket pool
+            Ticket removeticket = ticketQueue.remove(0);
+            System.out.println("Ticket sold: " + removeticket + "Current total: " + ticketQueue.size());
+            return removeticket;
+        } else {
+            System.out.println("No tickets available. Please add the ticket.");
+            return 
+        }
+    }
 }
