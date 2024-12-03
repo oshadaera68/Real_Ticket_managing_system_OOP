@@ -57,7 +57,7 @@ public class Configuration implements Serializable {
 
         maximumTicketCapacity = getValidateInput(inputCli, "Enter the ticket Release rate: ",
                 ticketCapacity -> ticketCapacity >= totalTickets,
-                "Max ticket capacity must be greater than or equal to total tickets.");
+                "Ticket release rate must be a greater than 0 and positive number.");
     }
 
 

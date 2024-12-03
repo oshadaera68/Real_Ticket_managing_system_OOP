@@ -6,34 +6,31 @@ import java.util.List;
  * Version: v0.1.0
  **/
 
-public class Vendor implements Runnable{
-    private final int totalTickets;
-    private final String ticketReleaseDate;
+public class Vendor implements Runnable {
+    private final int releaseRate;
     private final TicketPool ticketPool;
+    private int ticketIdCounter = 1;
 
-    public Vendor(int totalTickets, String ticketReleaseDate, TicketPool ticketPool) {
-        this.totalTickets = totalTickets;
-        this.ticketReleaseDate = ticketReleaseDate;
+    public Vendor(int releaseRate, TicketPool ticketPool) {
+        this.releaseRate = releaseRate;
         this.ticketPool = ticketPool;
     }
 
     @Override
     public void run() {
-        int releasedTickets = 0;
-        while (releasedTickets < totalTickets) {
+        while (true) {
+            List<Ticket> newTickets = new ArrayList<>();
+            for (int i = 0; i < releaseRate; i++) {
+                newTickets.add(new Ticket(ticketIdCounter++, "Concert", 100.0));
+            }
+            ticketPool.addTickets(newTickets);
+            System.out.println("Vendor added: " + releaseRate + " tickets.");
             try {
                 Thread.sleep(1000);
-                int size = Math.min(Integer.parseInt(ticketReleaseDate), totalTickets - releasedTickets);
-                List<Ticket> ticketList = new ArrayList<>();
-                for (int i = 0; i < size; i++) {
-                    Ticket ticket = new Ticket(i "Event " + i, 10.0);
-                    ticketList.add(ticket);
-                }
-                if (ticketPool.addTickets(ticketList)) {
-                    releasedTickets += size;
-                }
             } catch (InterruptedException e) {
                 e.printStackTrace();
+                Thread.currentThread().interrupt();
+                
             }
         }
     }
