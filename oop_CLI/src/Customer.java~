@@ -15,12 +15,12 @@ public class Customer implements Runnable {
     @Override
     public void run() {
         while (true) {
-            for (int i = 0; i < retrievalRate; i++) {
+            for (int i = 0; i < customerRetrivalRate; i++) {
                 Ticket ticket = ticketPool.removeTicket();
                 System.out.println("Customer retrieved: " + ticket);
             }
             try {
-                Thread.sleep(1000);
+                Thread.sleep(customerRetrivalRate *1000);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 break;

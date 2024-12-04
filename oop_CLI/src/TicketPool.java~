@@ -34,7 +34,7 @@ public class TicketPool {
 
     //Removing ticket
     public synchronized Ticket removeTicket() {
-        while(ticketQueue.isEmpty()) {
+        while (ticketQueue.isEmpty()) {
             try {
                 wait();
             } catch (InterruptedException e) {
@@ -43,6 +43,7 @@ public class TicketPool {
             }
         }
         Ticket ticket = ticketQueue.removeFirst();
-        
+        notifyAll();
+        return ticket;
     }
 }
