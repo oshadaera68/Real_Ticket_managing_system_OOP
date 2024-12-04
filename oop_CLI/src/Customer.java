@@ -4,26 +4,32 @@
  **/
 
 public class Customer implements Runnable {
-    private final int customerRetrivalRate;
     private final TicketPool ticketPool;
+    private final int customerRetrievalRate; // Delay in seconds between ticket purchases
+    private final int quantity; // Number of tickets to purchase
 
-    public Customer(int customerRetrivalRate, TicketPool ticketPool) {
-        this.customerRetrivalRate = customerRetrivalRate;
+    public Customer(TicketPool ticketPool, int customerRetrievalRate, int quantity) {
+        if (customerRetrievalRate <= 0 || quantity <= 0) {
+            throw new IllegalArgumentException("Retrieval rate and quantity must be positive.");
+        }
         this.ticketPool = ticketPool;
+        this.customerRetrievalRate = customerRetrievalRate;
+        this.quantity = quantity;
     }
 
     @Override
     public void run() {
-        while (true) {
-            for (int i = 0; i < customerRetrivalRate; i++) {
-                Ticket ticket = ticketPool.removeTicket();
-                System.out.println("Customer retrieved: " + ticket);
-            }
+        for (int i = 0; i < quantity; i++) {
             try {
-                Thread.sleep(1000);
+                Ticket ticket = ticketPool.buyTicket();
+                System.out.println("Ticket purchased: " + ticket + " by Customer - " + Thread.currentThread().getName());
+                Thread.sleep(customerRetrievalRate * 1000L);
             } catch (InterruptedException e) {
+                System.err.println("Customer thread interrupted: " + Thread.currentThread().getName());
                 Thread.currentThread().interrupt();
                 break;
+            } catch (RuntimeException e) {
+                System.err.println("Error during ticket purchase: " + e.getMessage());
             }
         }
     }

@@ -7,28 +7,28 @@ import java.util.List;
  **/
 
 public class Vendor implements Runnable {
-    private final int releaseRate;
+    private final int totalTickets;
+    private final int ticketReleaseRate;
     private final TicketPool ticketPool;
-    private int ticketIdCounter = 1;
 
-    public Vendor(int releaseRate, TicketPool ticketPool) {
-        this.releaseRate = releaseRate;
+    public Vendor(int totalTickets, int ticketReleaseRate, TicketPool ticketPool) {
+        if (totalTickets <= 0 || ticketReleaseRate <= 0) {
+            throw new IllegalArgumentException("Total tickets and release rate must be positive.");
+        }
+        this.totalTickets = totalTickets;
+        this.ticketReleaseRate = ticketReleaseRate;
         this.ticketPool = ticketPool;
     }
 
     @Override
     public void run() {
-        while (true) {
-            List<Ticket> newTickets = new ArrayList<>();
-            for (int i = 0; i < releaseRate; i++) {
-                newTickets.add(new Ticket(ticketIdCounter++, "Concert", 100.0));
-            }
-            ticketPool.addTickets(newTickets);
-            System.out.println("Vendor added: " + releaseRate + " tickets.");
+        for (int i = 1; i <= totalTickets; i++) {
+            Ticket ticket = new Ticket(i, "Event-" + i, new Double(100));
+            ticketPool.addTicket(ticket);
             try {
-                Thread.sleep(1000);
+                Thread.sleep(ticketReleaseRate * 1000L);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                System.err.println("Vendor thread interrupted.");
                 Thread.currentThread().interrupt();
                 break;
             }

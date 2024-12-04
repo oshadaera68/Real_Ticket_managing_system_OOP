@@ -7,43 +7,52 @@ import java.util.List;
  * Version: v0.1.0
  **/
 
-public class TicketPool {
-    private final int maximumTicketCapacity; // it means pool's have the maximum capacity of tickets
-    private final List<Ticket> ticketQueue;
+import java.util.LinkedList;
+import java.util.Queue;
 
-    // Ticket pool constructor
+public class TicketPool {
+    private final int maximumTicketCapacity;
+    private final Queue<Ticket> ticketQueue;
+
     public TicketPool(int maximumTicketCapacity) {
+        if (maximumTicketCapacity <= 0) {
+            throw new IllegalArgumentException("Maximum ticket capacity must be positive.");
+        }
         this.maximumTicketCapacity = maximumTicketCapacity;
-        this.ticketQueue = Collections.synchronizedList(new LinkedList<>());
+        this.ticketQueue = new LinkedList<>();
     }
 
-    // Add Tickets
-    public synchronized void addTickets(List<Ticket> addTicket) {
-        while (ticketQueue.size() + addTicket.size() > maximumTicketCapacity) {
+    // Add tickets to the pool
+    public synchronized void addTicket(Ticket ticket) {
+        while (ticketQueue.size() >= maximumTicketCapacity) {
             try {
                 wait();
             } catch (InterruptedException e) {
-                e.printStackTrace();
-                Thread.currentThread().interrupt(); // interrupt the thread for giving the exception
+                Thread.currentThread().interrupt();
+                System.err.println("Vendor thread interrupted while adding tickets.");
+                return;
             }
         }
-        ticketQueue.addAll(addTicket);
-        System.out.println();
+        ticketQueue.add(ticket);
         notifyAll();
+        System.out.println("Ticket added by Vendor - Current Pool Size: " + ticketQueue.size());
     }
 
-    //Removing ticket
-    public synchronized Ticket removeTicket() {
+    // Remove tickets from the pool
+    public synchronized Ticket buyTicket() {
         while (ticketQueue.isEmpty()) {
             try {
                 wait();
             } catch (InterruptedException e) {
-                e.printStackTrace();
                 Thread.currentThread().interrupt();
+                System.err.println("Customer thread interrupted while buying tickets.");
+                return null;
             }
         }
-        Ticket ticket = ticketQueue.removeFirst();
+        Ticket ticket = ticketQueue.poll();
         notifyAll();
+        System.out.println("Ticket bought - Remaining Pool Size: " + ticketQueue.size());
         return ticket;
     }
 }
+
