@@ -13,14 +13,14 @@ import java.math.BigDecimal;
 
 @Service
 public class VendorService {
-    private TicketPoolService ticketPoolService;
+    private final TicketPoolService ticketPoolService;
 
     public VendorService(TicketPoolService ticketPoolService) {
         this.ticketPoolService = ticketPoolService;
     }
 
     @Async
-    public void startVending(int totalTickets, int releaseRate){
+    public void startVending(int totalTickets, int releaseRate) {
         for (int i = 0; i < totalTickets; i++) {
             Ticket ticket = new Ticket("Event-" + i, new BigDecimal("100"));
             ticketPoolService.addTicket(ticket);
