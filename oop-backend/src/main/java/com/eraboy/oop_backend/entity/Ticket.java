@@ -13,9 +13,8 @@ import java.math.BigDecimal;
  * Version: v0.1.0
  **/
 
-
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
 @ToString
@@ -26,4 +25,9 @@ public class Ticket {
     private int ticketId;
     private String eventName;
     private BigDecimal ticketPrice;
+
+    public Ticket(String eventName, BigDecimal ticketPrice) {
+        this.eventName = eventName;
+        this.ticketPrice = ticketPrice;
+    }
 }

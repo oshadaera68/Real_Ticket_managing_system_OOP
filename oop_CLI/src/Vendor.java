@@ -1,3 +1,4 @@
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +24,7 @@ public class Vendor implements Runnable {
     @Override
     public void run() {
         for (int i = 1; i <= totalTickets; i++) {
-            Ticket ticket = new Ticket(i, "Event-" + i, new Double(100));
+            Ticket ticket = new Ticket(i, "Event-" + i, new BigDecimal(100));
             ticketPool.addTicket(ticket);
             try {
                 Thread.sleep(ticketReleaseRate * 1000L);

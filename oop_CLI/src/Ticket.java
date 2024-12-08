@@ -1,3 +1,5 @@
+import java.math.BigDecimal;
+
 /**
  * Coded By: Era Boy
  * Version: v0.1.0
@@ -7,9 +9,9 @@ public class Ticket {
     // Fields:- ticketId, event, price
     private int ticketId;
     private String event;
-    private double price;
+    private BigDecimal price;
 
-    public Ticket(int ticketId, String event, double price) {
+    public Ticket(int ticketId, String event, BigDecimal price) {
         this.ticketId = ticketId;
         this.event = event;
         this.price = price;
@@ -31,11 +33,11 @@ public class Ticket {
         this.event = event;
     }
 
-    public double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
 
