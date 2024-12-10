@@ -12,24 +12,26 @@ import java.io.Serializable;
  **/
 
 public class Configuration implements Serializable {
-    int totalTickets;
-    int ticketReleaseRate;
-    int customerRetrievalRate;
-    int maxTicketCapacity;
+    public int totalTickets;
+    public int ticketReleaseRate;
+    public int customerRetrievalRate;
+    public int maxTicketCapacity;
 
-    // Load configuration from a JSON file
+    /**
+     * Loads configuration from a JSON file.
+     */
     public static Configuration loadConfiguration(String filePath) throws IOException {
         Gson gson = new Gson();
         try (FileReader reader = new FileReader(filePath)) {
             return gson.fromJson(reader, Configuration.class);
-        } catch (JsonSyntaxException e) {
-            throw new IOException("Invalid JSON format in configuration file.", e);
         }
     }
 
-    // Save configuration to a file in JSON format
+    /**
+     * Saves the current configuration to a JSON file.
+     */
     public void saveConfiguration(String filePath) throws IOException {
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
         try (FileWriter writer = new FileWriter(filePath)) {
             gson.toJson(this, writer);
         }

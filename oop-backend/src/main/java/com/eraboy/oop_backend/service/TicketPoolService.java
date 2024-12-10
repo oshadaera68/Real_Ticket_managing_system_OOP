@@ -37,6 +37,7 @@ public class TicketPoolService {
         }
         tikQueue.add(ticket);
         ticketRepo.save(ticket);
+        System.out.println("Ticket added: " + ticket);
         notifyAll();
     }
 

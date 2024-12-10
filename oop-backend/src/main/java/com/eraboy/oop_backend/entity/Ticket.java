@@ -1,10 +1,13 @@
 package com.eraboy.oop_backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.math.BigDecimal;
 
@@ -12,9 +15,7 @@ import java.math.BigDecimal;
  * Coded By: Era Boy
  * Version: v0.1.0
  **/
-
-@NoArgsConstructor
-@AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @Getter
 @Setter
 @ToString
@@ -25,6 +26,9 @@ public class Ticket {
     private int ticketId;
     private String eventName;
     private BigDecimal ticketPrice;
+
+    public Ticket() {
+    }
 
     public Ticket(String eventName, BigDecimal ticketPrice) {
         this.eventName = eventName;

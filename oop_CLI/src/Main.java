@@ -3,125 +3,190 @@ import java.util.Scanner;
 
 /**
  * Coded By: Era Boy
- * Version: v0.1.0
- **/
+ * Version: v2.1.0
+ */
 
+// Main CLI entry point for the Ticket Management System.
 public class Main {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        Configuration config;
+        Configuration config = null;
 
-        // Prompt user to decide whether to load the configuration from a file or input manually
+        // Display welcome message and commands
+        System.out.println("===============================================");
+        System.out.println("   Welcome to the Ticket Management System!    ");
+        System.out.println("===============================================");
+        System.out.println("Available Commands:");
+        System.out.println("  start  - Start ticket release.");
+        System.out.println("  status - Display the current ticket pool status.");
+        System.out.println("  config - Configure ticket system settings.");
+        System.out.println("  help   - Display this list of available commands.");
+        System.out.println("  exit   - Exit the application.");
+        System.out.println("===============================================");
+
+        // Initialize shared TicketPool and threads
+        TicketPool ticketPool = null;
+        Vendor vendor = null;
+        Thread vendorThread = null;
+
+        boolean running = true;
+
+        // Start the main CLI loop
+        while (running) {
+            System.out.print("> ");
+            String command = scanner.nextLine().trim().toLowerCase();
+
+            switch (command) {
+                case "config":
+                    config = setupConfiguration(scanner);
+                    ticketPool = new TicketPool(config.maxTicketCapacity);
+                    vendor = new Vendor(config.totalTickets, config.ticketReleaseRate, ticketPool);
+                    vendorThread = new Thread(vendor, "Vendor");
+                    System.out.println("Configuration setup complete.");
+                    break;
+
+                case "start":
+                    if (config == null) {
+                        System.out.println("Error: Please configure the system first using the 'config' command.");
+                    } else if (!vendorThread.isAlive()) {
+                        vendorThread.start();
+                        System.out.println("Vendor thread started.");
+                    } else {
+                        System.out.println("Vendor thread is already running.");
+                    }
+                    break;
+
+                case "status":
+                    if (ticketPool == null) {
+                        System.out.println("Error: Please configure the system first using the 'config' command.");
+                    } else {
+                        displayTicketPoolStatus(ticketPool);
+                    }
+                    break;
+
+                case "help":
+                    displayHelp();
+                    break;
+
+                case "exit":
+                    System.out.println("Exiting the system...");
+                    if (vendorThread != null && vendorThread.isAlive()) {
+                        vendorThread.interrupt();
+                    }
+                    running = false;
+                    break;
+
+                default:
+                    System.out.println("Unknown command. Type 'help' for available commands.");
+                    break;
+            }
+        }
+
+        scanner.close();
+    }
+
+    /**
+     * Sets up the configuration either from a file or manually via user input.
+     */
+    private static Configuration setupConfiguration(Scanner scanner) {
         System.out.print("Do you want to load configuration from a file? (yes/no): ");
         String response = scanner.nextLine().trim().toLowerCase();
 
+        Configuration config = null;
+
         if (response.equals("yes")) {
-            // User chose to load configuration from a file
             System.out.print("Enter the file path: ");
             String filePath = scanner.nextLine();
 
             try {
-                // Load configuration from the specified file
                 config = Configuration.loadConfiguration(filePath);
-                System.out.println("Configuration loaded successfully.");
-                System.out.println("Total Tickets: " + config.totalTickets);
-                System.out.println("Ticket Release Rate: " + config.ticketReleaseRate);
-                System.out.println("Customer Retrieval Rate: " + config.customerRetrievalRate);
-                System.out.println("Max Ticket Capacity: " + config.maxTicketCapacity);
+                System.out.println("Configuration loaded successfully:");
+                displayConfiguration(config);
+
+                System.out.print("Do you want to update the configuration file? (yes/no): ");
+                String updateResponse = scanner.nextLine().trim().toLowerCase();
+
+                if (updateResponse.equals("yes")) {
+                    config = inputConfiguration(scanner); // Allow user to edit config
+                    config.saveConfiguration(filePath);
+                    System.out.println("Configuration updated and saved successfully.");
+                }
             } catch (IOException e) {
-                // Handle error if file loading fails
                 System.out.println("Error loading configuration: " + e.getMessage());
                 System.out.println("Switching to manual configuration input.");
-                config = inputConfiguration(scanner);
             }
-        } else {
-            // User chose to manually input configuration
-            config = inputConfiguration(scanner);
         }
 
-        // Initialize the TicketPool with the configured maximum ticket capacity
-        TicketPool ticketPool = new TicketPool(config.maxTicketCapacity);
-
-        // Create and start the vendor thread to generate tickets
-        Vendor vendor = new Vendor(config.totalTickets, config.ticketReleaseRate, ticketPool);
-        Thread vendorThread = new Thread(vendor, "Vendor");
-        vendorThread.start();
-
-        // Create and start the customer thread to retrieve tickets
-        Customer customer = new Customer(ticketPool, config.customerRetrievalRate, 5);
-        Thread customerThread = new Thread(customer, "Customer");
-        customerThread.start();
-    }
-
-    /**
-     * This method is used to manually input configuration values.
-     * It includes validation for each input.
-     *
-     * @param scanner The scanner instance for user input.
-     * @return The populated Configuration object.
-     */
-    private static Configuration inputConfiguration(Scanner scanner) {
-        Configuration config = new Configuration();
-
-        // Input total tickets with validation
-        config.totalTickets = getValidatedInput(scanner, "Enter total tickets: ",
-                value -> value > 0, "Total tickets must be a positive number.");
-
-        // Input ticket release rate with validation
-        config.ticketReleaseRate = getValidatedInput(scanner, "Enter ticket release rate (in seconds): ",
-                value -> value > 0, "Ticket release rate must be a positive number.");
-
-        // Input customer retrieval rate with validation
-        config.customerRetrievalRate = getValidatedInput(scanner, "Enter customer retrieval rate (in seconds): ",
-                value -> value > 0, "Customer retrieval rate must be a positive number.");
-
-        // Input maximum ticket capacity with validation
-        config.maxTicketCapacity = getValidatedInput(scanner, "Enter max ticket capacity: ",
-                value -> value > 0 && value >= config.totalTickets,
-                "Max ticket capacity must be greater than 0 and greater than or equal to total tickets.");
-
-        // Prompt user to save the configuration to a file if desired
-        System.out.print("Do you want to save this configuration to a file? (yes/no): ");
-        String saveResponse = scanner.nextLine().trim().toLowerCase();
-        if (saveResponse.equals("yes")) {
-            System.out.print("Enter the file path to save: ");
-            String filePath = scanner.nextLine();
-            try {
-                // Save configuration to the specified file
-                config.saveConfiguration(filePath);
-                System.out.println("Configuration saved successfully.");
-            } catch (IOException e) {
-                System.out.println("Error saving configuration: " + e.getMessage());
-            }
+        if (config == null) {
+            config = inputConfiguration(scanner);
         }
 
         return config;
     }
 
+    private static void displayConfiguration(Configuration config) {
+        System.out.println("Total Tickets: " + config.totalTickets);
+        System.out.println("Ticket Release Rate: " + config.ticketReleaseRate);
+        System.out.println("Customer Retrieval Rate: " + config.customerRetrievalRate);
+        System.out.println("Max Ticket Capacity: " + config.maxTicketCapacity);
+    }
+
+
     /**
-     * This method validates user input for configuration parameters.
-     *
-     * @param scanner      The scanner instance for user input.
-     * @param prompt       The prompt message to display to the user.
-     * @param validation   A validation rule to check the input.
-     * @param errorMessage The error message to display for invalid input.
-     * @return The validated integer input.
+     * Displays the ticket pool's current status.
+     */
+    private static void displayTicketPoolStatus(TicketPool ticketPool) {
+        System.out.println("=== Ticket Pool Status ===");
+        System.out.println("Tickets Available: " + ticketPool.getTicketCount());
+        System.out.println("==========================");
+    }
+
+    /**
+     * Displays available CLI commands.
+     */
+    private static void displayHelp() {
+        System.out.println("===============================================");
+        System.out.println("Available Commands:");
+        System.out.println("  start  - Start ticket release.");
+        System.out.println("  status - Display the current ticket pool status.");
+        System.out.println("  config - Configure ticket system settings.");
+        System.out.println("  help   - Display this list of available commands.");
+        System.out.println("  exit   - Exit the application.");
+        System.out.println("===============================================");
+    }
+
+    /**
+     * Gathers configuration input manually.
+     */
+    private static Configuration inputConfiguration(Scanner scanner) {
+        Configuration config = new Configuration();
+
+        config.totalTickets = getValidatedInput(scanner, "Enter total tickets: ", value -> value > 0, "Total tickets must be positive.");
+
+        config.ticketReleaseRate = getValidatedInput(scanner, "Enter ticket release rate (in seconds): ", value -> value > 0, "Ticket release rate must be positive.");
+
+        config.customerRetrievalRate = getValidatedInput(scanner, "Enter customer retrieval rate (in seconds): ", value -> value > 0, "Customer retrieval rate must be positive.");
+
+        config.maxTicketCapacity = getValidatedInput(scanner, "Enter max ticket capacity: ", value -> value > 0 && value >= config.totalTickets, "Max ticket capacity must be greater than 0 and at least equal to total tickets.");
+
+        return config;
+    }
+
+    /**
+     * Validates user input with custom rules.
      */
     private static int getValidatedInput(Scanner scanner, String prompt, ValidationRule validation, String errorMessage) {
         int value;
         while (true) {
             try {
-                // Display the prompt and read user input
                 System.out.print(prompt);
                 value = Integer.parseInt(scanner.nextLine());
-                // Check if the input satisfies the validation rule
                 if (validation.isValid(value)) {
                     break;
                 } else {
                     System.out.println("Error: " + errorMessage);
                 }
             } catch (NumberFormatException e) {
-                // Handle non-numeric input
                 System.out.println("Error: Please enter a valid number.");
             }
         }
