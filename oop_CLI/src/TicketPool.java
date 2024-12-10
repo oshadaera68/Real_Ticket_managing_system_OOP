@@ -5,10 +5,10 @@ import java.util.Queue;
 
 /**
  * Coded By: Era Boy
- * Version: v0.1.0
+ * Version: v0.1.1
  */
 
-//Shared ticket pool with producer-consumer synchronization.
+// Shared ticket pool with producer-consumer synchronization.
 public class TicketPool {
     private final int maximumTicketCapacity;
     private final Queue<Ticket> ticketQueue;
@@ -36,28 +36,26 @@ public class TicketPool {
         notifyAll();
     }
 
-    public synchronized Ticket buyTicket() {
-        while (ticketQueue.isEmpty()) {
-            try {
-                wait();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                System.err.println("[ERROR] Customer thread interrupted while buying tickets.");
-                return null;
-            }
-        }
-        Ticket ticket = ticketQueue.poll();
-        log("Ticket bought. Remaining pool size: " + ticketQueue.size());
-        notifyAll();
-        return ticket;
-    }
-
     public synchronized int getTicketCount() {
         return ticketQueue.size();
     }
 
+    // New Method: retrieveTicket
+    public synchronized boolean retrieveTicket() {
+        if (!ticketQueue.isEmpty()) {
+            ticketQueue.poll(); // Removes the ticket from the queue.
+            log("Ticket retrieved. Remaining pool size: " + ticketQueue.size());
+            notifyAll(); // Notify any waiting threads.
+            return true;
+        } else {
+            log("No tickets available to retrieve.");
+            return false;
+        }
+    }
+
     private void log(String message) {
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        System.out.println("[" + timestamp + "] " + message);
+        String threadName = Thread.currentThread().getName();
+        System.out.println("[" + timestamp + " | " + threadName + "] " + message);
     }
 }

@@ -1,3 +1,5 @@
+import com.google.gson.JsonSyntaxException;
+
 import java.io.IOException;
 import java.util.Scanner;
 
@@ -19,6 +21,7 @@ public class Main {
         System.out.println("Available Commands:");
         System.out.println("  start  - Start ticket release.");
         System.out.println("  status - Display the current ticket pool status.");
+        System.out.println("  stop   - Stop ticket release and exit the system.");
         System.out.println("  config - Configure ticket system settings.");
         System.out.println("  help   - Display this list of available commands.");
         System.out.println("  exit   - Exit the application.");
@@ -33,7 +36,7 @@ public class Main {
 
         // Start the main CLI loop
         while (running) {
-            System.out.print("> ");
+            System.out.print("Enter the Command: ");
             String command = scanner.nextLine().trim().toLowerCase();
 
             switch (command) {
@@ -51,6 +54,21 @@ public class Main {
                     } else if (!vendorThread.isAlive()) {
                         vendorThread.start();
                         System.out.println("Vendor thread started.");
+
+                        // Start multiple customer threads
+                        /*System.out.print("Enter the number of customers: ");
+                        int customerCount = scanner.nextInt();
+                        scanner.nextLine(); // Consume newline
+
+                        for (int i = 1; i <= customerCount; i++) {
+                            System.out.print("Enter tickets to purchase for Customer-" + i + ": ");
+                            int tickets = scanner.nextInt();
+                            scanner.nextLine(); // Consume newline
+
+                            Customer customer = new Customer(ticketPool, config.customerRetrievalRate, tickets);
+                            Thread customerThread = new Thread(customer, "Customer-" + i);
+                            customerThread.start();
+                        }*/
                     } else {
                         System.out.println("Vendor thread is already running.");
                     }
@@ -63,21 +81,24 @@ public class Main {
                         displayTicketPoolStatus(ticketPool);
                     }
                     break;
-                    
+
                 case "stop":
-                    if (vendorThread != null && vendorThread.isAlive()) {
-                        System.out.println("Stopping the ticket distributor simulation...");
-                        vendor.stopVendor(); // Gracefully stop the Vendor
+                    if (vendorThread.isAlive()) {
+                        Customer.stopAll(); // Signal customers to stop
+                        System.out.println("Stopping all customer threads...");
+
+                        // Wait for threads to finish (optional: if you manage references to threads)
                         try {
-                            vendorThread.join(); // Wait for the thread to finish
-                            System.out.println("Vendor thread stopped successfully.");
+                            vendorThread.join(); // Wait for vendor thread to finish
+                            System.out.println("Vendor thread stopped.");
                         } catch (InterruptedException e) {
-                            System.out.println("Error while stopping vendor thread: " + e.getMessage());
+                            Thread.currentThread().interrupt();
                         }
                     } else {
-                        System.out.println("Vendor thread is not running.");
+                        System.out.println("No active vendor or customer threads to stop.");
                     }
                     break;
+
                 case "help":
                     displayHelp();
                     break;
@@ -85,10 +106,12 @@ public class Main {
                 case "exit":
                     System.out.println("Exiting the system...");
                     if (vendorThread != null && vendorThread.isAlive()) {
+                        vendor.stopVendor();
                         vendorThread.interrupt();
                     }
                     running = false;
                     break;
+
 
                 default:
                     System.out.println("Unknown command. Type 'help' for available commands.");
@@ -105,14 +128,14 @@ public class Main {
     private static Configuration setupConfiguration(Scanner scanner) {
         System.out.print("Do you want to load configuration from a file? (yes/no): ");
         String response = scanner.nextLine().trim().toLowerCase();
-
-        Configuration config = null;
+        Configuration config;
 
         if (response.equals("yes")) {
             System.out.print("Enter the file path: ");
             String filePath = scanner.nextLine();
 
             try {
+                // Attempt to load the configuration from the file
                 config = Configuration.loadConfiguration(filePath);
                 System.out.println("Configuration loaded successfully:");
                 displayConfiguration(config);
@@ -120,31 +143,34 @@ public class Main {
                 System.out.print("Do you want to update the configuration file? (yes/no): ");
                 String updateResponse = scanner.nextLine().trim().toLowerCase();
 
+                // Allow the user to update and save the configuration file if needed
                 if (updateResponse.equals("yes")) {
-                    config = inputConfiguration(scanner); // Allow user to edit config
+                    config = inputConfiguration(scanner);
                     config.saveConfiguration(filePath);
                     System.out.println("Configuration updated and saved successfully.");
                 }
-            } catch (IOException e) {
+            } catch (IOException | JsonSyntaxException e) {
                 System.out.println("Error loading configuration: " + e.getMessage());
                 System.out.println("Switching to manual configuration input.");
+                config = inputConfiguration(scanner); // Fallback to manual configuration input
             }
-        }
-
-        if (config == null) {
+        } else {
+            // If user opts not to load from a file, input configuration manually
             config = inputConfiguration(scanner);
         }
 
         return config;
     }
 
+    /**
+     * Displays the all configs in the system
+     */
     private static void displayConfiguration(Configuration config) {
         System.out.println("Total Tickets: " + config.totalTickets);
         System.out.println("Ticket Release Rate: " + config.ticketReleaseRate);
         System.out.println("Customer Retrieval Rate: " + config.customerRetrievalRate);
         System.out.println("Max Ticket Capacity: " + config.maxTicketCapacity);
     }
-
 
     /**
      * Displays the ticket pool's current status.
@@ -172,13 +198,18 @@ public class Main {
     private static Configuration inputConfiguration(Scanner scanner) {
         Configuration config = new Configuration();
 
-        config.totalTickets = getValidatedInput(scanner, "Enter total tickets: ", value -> value > 0, "Total tickets must be positive.");
+        config.totalTickets = getValidatedInput(scanner, "Enter total tickets: ",
+                totTickets -> totTickets > 0, "Total tickets must be positive.");
 
-        config.ticketReleaseRate = getValidatedInput(scanner, "Enter ticket release rate (in seconds): ", value -> value > 0, "Ticket release rate must be positive.");
+        config.ticketReleaseRate = getValidatedInput(scanner, "Enter ticket release rate (in seconds): ",
+                releaseRate -> releaseRate > 0, "Ticket release rate must be positive.");
 
-        config.customerRetrievalRate = getValidatedInput(scanner, "Enter customer retrieval rate (in seconds): ", value -> value > 0, "Customer retrieval rate must be positive.");
+        config.customerRetrievalRate = getValidatedInput(scanner, "Enter customer retrieval rate (in seconds): ",
+                retriveRate -> retriveRate > 0, "Customer retrieval rate must be positive.");
 
-        config.maxTicketCapacity = getValidatedInput(scanner, "Enter max ticket capacity: ", value -> value > 0 && value >= config.totalTickets, "Max ticket capacity must be greater than 0 and at least equal to total tickets.");
+        config.maxTicketCapacity = getValidatedInput(scanner, "Enter max ticket capacity: ", value -> value > 0
+                && value >= config.totalTickets,
+                "Max ticket capacity must be greater than 0 and at least equal to total tickets.");
 
         return config;
     }
@@ -186,7 +217,8 @@ public class Main {
     /**
      * Validates user input with custom rules.
      */
-    private static int getValidatedInput(Scanner scanner, String prompt, ValidationRule validation, String errorMessage) {
+    private static int getValidatedInput(Scanner scanner, String prompt,
+                                         ValidationRule validation, String errorMessage) {
         int value;
         while (true) {
             try {

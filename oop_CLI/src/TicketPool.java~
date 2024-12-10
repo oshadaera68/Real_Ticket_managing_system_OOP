@@ -1,17 +1,16 @@
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-
-/**
- * Coded By: Era Boy
- * Version: v0.1.0
- **/
-
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.LinkedList;
 import java.util.Queue;
 
+/**
+ * Coded By: Era Boy
+ * Version: v0.1.1
+ */
+
+// Shared ticket pool with producer-consumer synchronization.
 public class TicketPool {
-    private  int maximumTicketCapacity;
+    private final int maximumTicketCapacity;
     private final Queue<Ticket> ticketQueue;
 
     public TicketPool(int maximumTicketCapacity) {
@@ -22,37 +21,41 @@ public class TicketPool {
         this.ticketQueue = new LinkedList<>();
     }
 
-    // Add tickets to the pool
     public synchronized void addTicket(Ticket ticket) {
         while (ticketQueue.size() >= maximumTicketCapacity) {
             try {
                 wait();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                System.err.println("Vendor thread interrupted while adding tickets.");
+                System.err.println("[ERROR] Vendor thread interrupted while adding tickets.");
                 return;
             }
         }
         ticketQueue.add(ticket);
+        log("Ticket added. Current pool size: " + ticketQueue.size());
         notifyAll();
-        System.out.println("Ticket added by Vendor - Current Pool Size: " + ticketQueue.size());
+    }
+    
+    public synchronized int getTicketCount() {
+        return ticketQueue.size();
     }
 
-    // Remove tickets from the pool
-    public synchronized Ticket buyTicket() {
-        while (ticketQueue.isEmpty()) {
-            try {
-                wait();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                System.err.println("Customer thread interrupted while buying tickets.");
-                return null;
-            }
+    // New Method: retrieveTicket
+    public synchronized boolean retrieveTicket() {
+        if (!ticketQueue.isEmpty()) {
+            ticketQueue.poll(); // Removes the ticket from the queue.
+            log("Ticket retrieved. Remaining pool size: " + ticketQueue.size());
+            notifyAll(); // Notify any waiting threads.
+            return true;
+        } else {
+            log("No tickets available to retrieve.");
+            return false;
         }
-        Ticket ticket = ticketQueue.poll();
-        notifyAll();
-        System.out.println("Ticket bought - Remaining Pool Size: " + ticketQueue.size());
-        return ticket;
+    }
+
+    private void log(String message) {
+        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        String threadName = Thread.currentThread().getName();
+        System.out.println("[" + timestamp + " | " + threadName + "] " + message);
     }
 }
-
