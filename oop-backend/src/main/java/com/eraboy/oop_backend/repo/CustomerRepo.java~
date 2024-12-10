@@ -1,8 +1,0 @@
-package com.eraboy.oop_backend.repo;
-
-/**
- * Coded By: Era Boy
- * Version: v0.1.0
- **/
-public interface CustomerRepo {
-}
