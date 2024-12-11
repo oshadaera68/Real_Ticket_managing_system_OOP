@@ -1,8 +1,8 @@
 package com.eraboy.OOP_Backend.entity;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.springframework.stereotype.Component;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 
 import java.math.BigDecimal;
 
@@ -11,22 +11,25 @@ import java.math.BigDecimal;
  * Version: v1.0.0
  **/
 
-@Data
-@NoArgsConstructor
-@Component
-public class Ticket {
-    private static int ticketNo = 0;
-    private String ticketId;
-    private BigDecimal ticketPrice;
-    private String eventName;
 
-    public Ticket(BigDecimal ticketPrice, String eventName) {
-        this.ticketId = "Ticket " + getNewId();
-        this.ticketPrice = ticketPrice;
-        this.eventName = eventName;
-    }
+@Id
+@GeneratedValue(strategy = GenerationType.IDENTITY)
+private int ticketId;
+private String event;
+private BigDecimal price;
 
-    private int getNewId() {
-        return ++Ticket.ticketNo;
-    }
+public Ticket(String event, BigDecimal price) {
+    this.event = event;
+    this.price = price;
+}
+
+public Ticket() {}
+
+@Override
+public String toString() {
+    return "Ticket{" +
+            "ticketId=" + ticketId +
+            ", event='" + event + '\'' +
+            ", price=" + price +
+            '}';
 }
