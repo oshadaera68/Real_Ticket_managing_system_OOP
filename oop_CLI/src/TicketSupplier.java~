@@ -1,0 +1,31 @@
+/**
+ * Coded By: Era Boy
+ * Version: v0.1.0
+ **/
+
+public class TicketSupplier implements Runnable {
+    private final TicketQueue ticketQueue;
+    private final int ticketReleaseInterval;
+
+    public TicketSupplier(TicketQueue ticketQueue, int ticketReleaseInterval) {
+        this.ticketQueue = ticketQueue;
+        this.ticketReleaseInterval = ticketReleaseInterval;
+    }
+
+    @Override
+    public void run() {
+        int ticketId = 1; // Start ticket ID from 1 for each cycle
+        while (true) { // Infinite loop for continuous ticket generation
+            try {
+                ticketQueue.addTicketToQueue(ticketId); // Add new ticket to the queue
+                System.out.println("Ticket Supplier added ticket with ID: " + ticketId);
+                ticketId++; // Increment ticket ID for the next ticket
+                Thread.sleep(ticketReleaseInterval * 1000); // Simulate the ticket release rate
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt(); // Properly handle thread interruption
+                break; // Exit the loop if the thread is interrupted
+            }
+        }
+    }
+}
+

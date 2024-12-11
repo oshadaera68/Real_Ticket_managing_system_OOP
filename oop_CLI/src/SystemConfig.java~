@@ -1,0 +1,56 @@
+import com.google.gson.Gson;
+
+import java.io.*;
+
+/**
+ * Coded By: Era Boy
+ * Version: v0.1.0
+ **/
+
+public class SystemConfig {
+    private final int numberOfTickets;
+    private final int ticketGenerationRate;
+    private final int customerTicketRate;
+    private final int maxCapacity;
+
+    // Constructor to initialize configuration
+    public SystemConfig(int numberOfTickets, int ticketGenerationRate, int customerTicketRate, int maxCapacity) {
+        this.numberOfTickets = numberOfTickets;
+        this.ticketGenerationRate = ticketGenerationRate;
+        this.customerTicketRate = customerTicketRate;
+        this.maxCapacity = maxCapacity;
+    }
+
+    // Load configuration from a file (added for completeness)
+    public static SystemConfig loadFromFile(String filePath) throws IOException {
+        Gson gson = new Gson();
+        try (Reader fileReader = new FileReader(filePath)) {
+            return gson.fromJson(fileReader, SystemConfig.class);
+        }
+    }
+
+    // Getters
+    public int getNumberOfTickets() {
+        return numberOfTickets;
+    }
+
+    public int getTicketGenerationRate() {
+        return ticketGenerationRate;
+    }
+
+    public int getCustomerTicketRate() {
+        return customerTicketRate;
+    }
+
+    public int getMaxCapacity() {
+        return maxCapacity;
+    }
+
+    // Save the configuration to a specified file
+    public void saveToFile(String filePath) throws IOException {
+        Gson gson = new Gson();
+        try (Writer fileWriter = new FileWriter(filePath)) {
+            gson.toJson(this, fileWriter);
+        }
+    }
+}

@@ -1,0 +1,38 @@
+/**
+*Coded By: Era Boy
+*Version: v0.1.0
+**/
+
+import java.util.Queue;
+import java.util.LinkedList;
+
+public class TicketQueue {
+    private final Queue<Integer> availableTickets = new LinkedList<>();
+    private final int maxCapacity;
+
+    public TicketQueue(int maxCapacity) {
+        this.maxCapacity = maxCapacity;
+    }
+
+    // Method to add a ticket to the queue
+    public synchronized void addTicketToQueue(int ticketId) throws InterruptedException {
+        while (availableTickets.size() >= maxCapacity) {
+            wait(); // Wait until space is available
+        }
+        availableTickets.add(ticketId);
+        System.out.println("New Ticket Added: " + ticketId);
+        notifyAll(); // Notify waiting threads (e.g., customers)
+    }
+
+    // Method to remove a ticket from the queue (purchase a ticket)
+    public synchronized int purchaseTicket() throws InterruptedException {
+        while (availableTickets.isEmpty()) {
+            wait(); // Wait until there is a ticket available
+        }
+        int ticket = availableTickets.poll(); // Retrieve and remove the ticket
+        System.out.println("Ticket Purchased: " + ticket);
+        notifyAll(); // Notify waiting threads (e.g., vendors)
+        return ticket;
+    }
+}
+
