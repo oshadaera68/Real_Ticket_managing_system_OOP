@@ -212,7 +212,7 @@ public class Main {
                 "Max ticket capacity must be greater than 0 and at least equal to total tickets.");
 
         return config;
-    }
+    }   
 
     /**
      * Validates user input with custom rules.
