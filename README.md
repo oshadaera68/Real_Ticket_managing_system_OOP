@@ -32,6 +32,8 @@ Before you begin, ensure you have the following installed:
 3. **Configure the Application:**
    - Update the `application.properties` or `application.yml` with your H2 database connection details:
      ```properties
+     server.port=8080
+
      spring.h2.console.enabled=true
      spring.datasource.url=jdbc:h2:mem:ticketdb
      spring.datasource.driverClassName=org.h2.Driver
@@ -41,6 +43,9 @@ Before you begin, ensure you have the following installed:
      # JPA Hibernate Settings
      spring.jpa.hibernate.ddl-auto=update
      spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.H2Dialect
+
+     # Logging for SQL queries (optional for debugging)
+     logging.level.org.hibernate=DEBUG
      ```
 
 4. **Build the project using Maven:**
