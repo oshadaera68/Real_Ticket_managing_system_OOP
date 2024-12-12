@@ -5,11 +5,13 @@ import java.util.Scanner;
 
 /**
  * Coded By: Era Boy
- * Version: v2.1.0
+ * Version: v0.1.0
+ *
+ * Main CLI entry point for the Ticket Management System.
+ * This class handles user input and manages the system's functionality.
  */
-
-// Main CLI entry point for the Ticket Management System.
 public class Main {
+
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         Configuration config = null;
@@ -39,8 +41,10 @@ public class Main {
             System.out.print("Enter the Command: ");
             String command = scanner.nextLine().trim().toLowerCase();
 
+            // Command handling based on user input
             switch (command) {
                 case "config":
+                    // Set up the system configuration
                     config = setupConfiguration(scanner);
                     ticketPool = new TicketPool(config.maxTicketCapacity);
                     vendor = new Vendor(config.totalTickets, config.ticketReleaseRate, ticketPool);
@@ -49,32 +53,19 @@ public class Main {
                     break;
 
                 case "start":
+                    // Start the ticket release process (vendor thread)
                     if (config == null) {
                         System.out.println("Error: Please configure the system first using the 'config' command.");
                     } else if (!vendorThread.isAlive()) {
                         vendorThread.start();
                         System.out.println("Vendor thread started.");
-
-                        // Start multiple customer threads
-                        /*System.out.print("Enter the number of customers: ");
-                        int customerCount = scanner.nextInt();
-                        scanner.nextLine(); // Consume newline
-
-                        for (int i = 1; i <= customerCount; i++) {
-                            System.out.print("Enter tickets to purchase for Customer-" + i + ": ");
-                            int tickets = scanner.nextInt();
-                            scanner.nextLine(); // Consume newline
-
-                            Customer customer = new Customer(ticketPool, config.customerRetrievalRate, tickets);
-                            Thread customerThread = new Thread(customer, "Customer-" + i);
-                            customerThread.start();
-                        }*/
                     } else {
                         System.out.println("Vendor thread is already running.");
                     }
                     break;
 
                 case "status":
+                    // Display the current ticket pool status
                     if (ticketPool == null) {
                         System.out.println("Error: Please configure the system first using the 'config' command.");
                     } else {
@@ -83,13 +74,14 @@ public class Main {
                     break;
 
                 case "stop":
+                    // Stop the ticket release process and terminate threads
                     if (vendorThread.isAlive()) {
                         Customer.stopAll(); // Signal customers to stop
                         System.out.println("Stopping all customer threads...");
 
-                        // Wait for threads to finish (optional: if you manage references to threads)
+                        // Wait for vendor thread to finish
                         try {
-                            vendorThread.join(); // Wait for vendor thread to finish
+                            vendorThread.join();
                             System.out.println("Vendor thread stopped.");
                         } catch (InterruptedException e) {
                             Thread.currentThread().interrupt();
@@ -100,10 +92,12 @@ public class Main {
                     break;
 
                 case "help":
+                    // Display available commands to the user
                     displayHelp();
                     break;
 
                 case "exit":
+                    // Exit the application and stop any active threads
                     System.out.println("Exiting the system...");
                     if (vendorThread != null && vendorThread.isAlive()) {
                         vendor.stopVendor();
@@ -112,18 +106,21 @@ public class Main {
                     running = false;
                     break;
 
-
                 default:
+                    // Handle unknown commands
                     System.out.println("Unknown command. Type 'help' for available commands.");
                     break;
             }
         }
 
-        scanner.close();
+        scanner.close();  // Close the scanner when exiting the program
     }
 
     /**
      * Sets up the configuration either from a file or manually via user input.
+     *
+     * @param scanner The Scanner object used for input.
+     * @return The configured settings for the ticket system.
      */
     private static Configuration setupConfiguration(Scanner scanner) {
         System.out.print("Do you want to load configuration from a file? (yes/no): ");
@@ -131,22 +128,22 @@ public class Main {
         Configuration config;
 
         if (response.equals("yes")) {
+            // Load configuration from file
             System.out.print("Enter the file path: ");
             String filePath = scanner.nextLine();
 
             try {
-                // Attempt to load the configuration from the file
-                config = Configuration.loadConfiguration(filePath);
+                config = Configuration.loadConfiguration(filePath); // Attempt to load from file
                 System.out.println("Configuration loaded successfully:");
-                displayConfiguration(config);
+                displayConfiguration(config); // Display the loaded configuration
 
                 System.out.print("Do you want to update the configuration file? (yes/no): ");
                 String updateResponse = scanner.nextLine().trim().toLowerCase();
 
-                // Allow the user to update and save the configuration file if needed
+                // Allow user to update configuration if needed
                 if (updateResponse.equals("yes")) {
-                    config = inputConfiguration(scanner);
-                    config.saveConfiguration(filePath);
+                    config = inputConfiguration(scanner); // Collect updated config values
+                    config.saveConfiguration(filePath);  // Save to file
                     System.out.println("Configuration updated and saved successfully.");
                 }
             } catch (IOException | JsonSyntaxException e) {
@@ -155,7 +152,7 @@ public class Main {
                 config = inputConfiguration(scanner); // Fallback to manual configuration input
             }
         } else {
-            // If user opts not to load from a file, input configuration manually
+            // Manually input configuration if file loading is not chosen
             config = inputConfiguration(scanner);
         }
 
@@ -163,7 +160,9 @@ public class Main {
     }
 
     /**
-     * Displays the all configs in the system
+     * Displays the configuration details to the user.
+     *
+     * @param config The configuration object containing system settings.
      */
     private static void displayConfiguration(Configuration config) {
         System.out.println("Total Tickets: " + config.totalTickets);
@@ -173,7 +172,9 @@ public class Main {
     }
 
     /**
-     * Displays the ticket pool's current status.
+     * Displays the current status of the ticket pool.
+     *
+     * @param ticketPool The ticket pool whose status is to be displayed.
      */
     private static void displayTicketPoolStatus(TicketPool ticketPool) {
         System.out.println("=== Ticket Pool Status ===");
@@ -182,18 +183,22 @@ public class Main {
     }
 
     /**
-     * Displays available CLI commands.
+     * Displays the list of available commands.
      */
     private static void displayHelp() {
-        System.out.println("Available Commands:");
-        System.out.println("start  - Start ticket release");
-        System.out.println("status - Display current ticket pool status");
-        System.out.println("stop   - Stop ticket release");
-        System.out.println("exit   - Exit the application");
+        System.out.println("  start  - Start ticket release.");
+        System.out.println("  status - Display the current ticket pool status.");
+        System.out.println("  stop   - Stop ticket release and exit the system.");
+        System.out.println("  config - Configure ticket system settings.");
+        System.out.println("  help   - Display this list of available commands.");
+        System.out.println("  exit   - Exit the application.");
     }
 
     /**
-     * Gathers configuration input manually.
+     * Gathers configuration input from the user manually.
+     *
+     * @param scanner The scanner used to gather user input.
+     * @return The configuration object with user-provided values.
      */
     private static Configuration inputConfiguration(Scanner scanner) {
         Configuration config = new Configuration();
@@ -208,14 +213,20 @@ public class Main {
                 retriveRate -> retriveRate > 0, "Customer retrieval rate must be positive.");
 
         config.maxTicketCapacity = getValidatedInput(scanner, "Enter max ticket capacity: ", value -> value > 0
-                && value >= config.totalTickets,
+                        && value >= config.totalTickets,
                 "Max ticket capacity must be greater than 0 and at least equal to total tickets.");
 
         return config;
-    }   
+    }
 
     /**
-     * Validates user input with custom rules.
+     * Validates user input based on a custom validation rule.
+     *
+     * @param scanner The scanner used to gather user input.
+     * @param prompt The prompt to display to the user.
+     * @param validation The validation rule to apply.
+     * @param errorMessage The error message to display if validation fails.
+     * @return The valid input value.
      */
     private static int getValidatedInput(Scanner scanner, String prompt,
                                          ValidationRule validation, String errorMessage) {
