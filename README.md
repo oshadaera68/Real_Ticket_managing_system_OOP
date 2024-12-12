@@ -30,13 +30,18 @@ Before you begin, ensure you have the following installed:
    - Ensure you have the necessary tables created according to the schema defined in your project.
 
 3. **Configure the Application:**
-   - Update the `application.properties` or `application.yml` with your MySQL database connection details:
+   - Update the `application.properties` or `application.yml` with your H2 database connection details:
      ```properties
      spring.datasource.url=jdbc:mysql://localhost:3306/ticket_management_system
-     spring.datasource.username=<your-username>
-     spring.datasource.password=<your-password>
+     spring.h2.console.enabled=true
+     spring.datasource.url=jdbc:h2:mem:ticketdb
+     spring.datasource.driverClassName=org.h2.Driver
+     spring.datasource.username=sa
+     spring.datasource.password=
+      
+     # JPA Hibernate Settings
      spring.jpa.hibernate.ddl-auto=update
-     spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+     spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.H2Dialect
      ```
 
 4. **Build the project using Maven:**
