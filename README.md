@@ -32,7 +32,6 @@ Before you begin, ensure you have the following installed:
 3. **Configure the Application:**
    - Update the `application.properties` or `application.yml` with your H2 database connection details:
      ```properties
-     spring.datasource.url=jdbc:mysql://localhost:3306/ticket_management_system
      spring.h2.console.enabled=true
      spring.datasource.url=jdbc:h2:mem:ticketdb
      spring.datasource.driverClassName=org.h2.Driver
