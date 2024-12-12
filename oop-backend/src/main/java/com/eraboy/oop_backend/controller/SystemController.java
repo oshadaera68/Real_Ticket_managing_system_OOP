@@ -8,57 +8,87 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * This class is a REST controller for managing tickets and system configuration.
+ * It provides endpoints for creating, retrieving, and selling tickets, as well as getting and updating system configuration.
+ */
 @RestController
 @RequestMapping("/api/tickets")  // Base URL for ticket-related actions
 @CrossOrigin(origins = "http://localhost:5173")
 public class SystemController {
 
+    // The TicketService instance used to perform business logic operations on tickets
     @Autowired
     private TicketService ticketService;
 
+    // The Configuration instance used to store and retrieve system configuration
     @Autowired
-    private Configuration configuration;
+    private Configuration systemConfiguration;
 
-    // Endpoint to create a new ticket
+    /**
+     * Creates a new ticket with the specified event name.
+     *
+     * @param eventName The name of the event for which the ticket is being created
+     * @return The newly created ticket
+     */
     @PostMapping("/create")
-    public Ticket createTicket(@RequestParam String eventName) {
+    public Ticket createNewTicket(@RequestParam String eventName) {
         // Create a ticket with a specified event name
-        return ticketService.addTicket(eventName);
+        return ticketService.createNewTicket(eventName);
     }
 
-    // Endpoint to retrieve all tickets
+    /**
+     * Retrieves a list of all tickets.
+     *
+     * @return A list of all tickets
+     */
     @GetMapping("/all")
-    public List<Ticket> getAllTickets() {
+    public List<Ticket> getAllExistingTickets() {
         // Get all tickets from the database
-        return ticketService.getTickets();
+        return ticketService.getAllTickets();
     }
 
-    // Endpoint to sell a ticket (mark as sold)
-    @PostMapping("/sell/{id}")
-    public Ticket sellTicket(@PathVariable Long id) throws Exception {
+    /**
+     * Sells a ticket with the specified ID.
+     *
+     * @param ticketId The ID of the ticket to be sold
+     * @return The sold ticket
+     * @throws Exception If the ticket cannot be sold (e.g., if it is already sold)
+     */
+    @PostMapping("/sell/{ticketId}")
+    public Ticket sellExistingTicket(@PathVariable Long ticketId) throws Exception {
         // Sell the ticket by ID
-        return ticketService.sellTicket(id);
+        return ticketService.sellExistingTicket(ticketId);
     }
 
-    // Endpoint to get configuration settings
-    @GetMapping("/configuration")
-    public Configuration getConfiguration() {
+    /**
+     * Retrieves the current system configuration.
+     *
+     * @return The current system configuration
+     */
+    @GetMapping("/config")
+    public Configuration getSystemConfiguration() {
         // Retrieve the configuration object
-        return configuration;
+        return systemConfiguration;
     }
 
-    // Endpoint to update configuration settings
+    /**
+     * Updates the system configuration with the provided values.
+     *
+     * @param newConfiguration The new system configuration values
+     * @return The updated system configuration
+     */
     @PutMapping("/configuration")
-    public Configuration updateConfiguration(@RequestBody Configuration newConfig) {
+    public Configuration updateSystemConfiguration(@RequestBody Configuration newConfiguration) {
         // Update configuration values based on the input from the client
-        configuration.setTotalTickets(newConfig.getTotalTickets());
-        configuration.setTicketReleaseRate(newConfig.getTicketReleaseRate());
-        configuration.setCustomerRetrievalRate(newConfig.getCustomerRetrievalRate());
-        configuration.setMaxTicketCapacity(newConfig.getMaxTicketCapacity());
+        systemConfiguration.setTotalTickets(newConfiguration.getTotalTickets());
+        systemConfiguration.setTicketReleaseRate(newConfiguration.getTicketReleaseRate());
+        systemConfiguration.setCustomerRetrievalRate(newConfiguration.getCustomerRetrievalRate());
+        systemConfiguration.setMaxTicketCapacity(newConfiguration.getMaxTicketCapacity());
 
         // Optionally save the configuration back to the file or database
-        configuration.saveToFile("config.json");
+        systemConfiguration.saveToFile("config.json");
 
-        return configuration;
+        return systemConfiguration;
     }
 }

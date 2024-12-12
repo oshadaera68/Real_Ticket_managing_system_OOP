@@ -9,43 +9,77 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * This class is a service for managing tickets.
+ * It provides methods for adding, retrieving, and selling tickets.
+ */
 @Service
 public class TicketService {
 
+    // The logger instance used to log events in the service
     private static final Logger logger = LoggerFactory.getLogger(TicketService.class);
 
-    private final TicketRepo repository;
+    // The TicketRepo instance used to interact with the ticket repository
+    private final TicketRepo ticketRepository;
 
+    /**
+     * Constructs a new TicketService instance with the provided TicketRepo instance.
+     *
+     * @param ticketRepository The TicketRepo instance to use
+     */
     @Autowired
-    public TicketService(TicketRepo repository) {
-        this.repository = repository;
+    public TicketService(TicketRepo ticketRepository) {
+        this.ticketRepository = ticketRepository;
     }
 
-    // Add a new ticket with the specified event name
-    public Ticket addTicket(String eventName) {
-        Ticket ticket = new Ticket(eventName);
-        return repository.save(ticket);
+    /**
+     * Creates a new ticket with the specified event name and adds it to the repository.
+     *
+     * @param eventName The name of the event for which the ticket is being created
+     * @return The newly created ticket
+     */
+    public Ticket createNewTicket(String eventName) {
+        // Create a new ticket with the specified event name
+        Ticket newTicket = new Ticket(eventName);
+        // Save the new ticket to the repository
+        return ticketRepository.save(newTicket);
     }
 
-    // Retrieve all tickets
-    public List<Ticket> getTickets() {
-        return repository.findAll();
+    /**
+     * Retrieves a list of all tickets from the repository.
+     *
+     * @return A list of all tickets
+     */
+    public List<Ticket> getAllTickets() {
+        // Retrieve all tickets from the repository
+        return ticketRepository.findAll();
     }
 
-    // Sell a ticket by ID
-    public Ticket sellTicket(Long id) throws Exception {
-        Ticket ticket = repository.findById(id)
-                .orElseThrow(() -> new Exception("Ticket with ID " + id + " not found"));
+    /**
+     * Sells a ticket with the specified ID.
+     *
+     * @param ticketId The ID of the ticket to be sold
+     * @return The sold ticket
+     * @throws Exception If the ticket cannot be sold (e.g., if it is already sold or not found)
+     */
+    public Ticket sellExistingTicket(Long ticketId) throws Exception {
+        // Retrieve the ticket with the specified ID from the repository
+        Ticket ticketToSell = ticketRepository.findById(ticketId)
+                .orElseThrow(() -> new Exception("Ticket with ID " + ticketId + " not found"));
 
-        if (ticket.isSold()) {
-            throw new Exception("Ticket with ID " + id + " is already sold");
+        // Check if the ticket is already sold
+        if (ticketToSell.isSold()) {
+            throw new Exception("Ticket with ID " + ticketId + " is already sold");
         }
 
-        ticket.setSold(true);
-        repository.save(ticket);
+        // Mark the ticket as sold
+        ticketToSell.setSold(true);
+        // Save the updated ticket to the repository
+        ticketRepository.save(ticketToSell);
 
-        logger.info("Ticket with ID {} sold successfully", id);
+        // Log the successful sale of the ticket
+        logger.info("Ticket with ID {} sold successfully", ticketId);
 
-        return ticket;
+        return ticketToSell;
     }
 }

@@ -4,50 +4,96 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
- * Coded By: Era Boy
- * Version: v0.1.0
- **/
+ * @author Era Boy
+ * @version v0.1.0
+ */
 
+// Represents a ticket with a unique ID, event name, and sold status.
 @Entity
 public class Ticket {
+
+    // Unique identifier for the ticket
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long ticketId;
 
-    private String eventName;
-    private boolean sold;
+    // Name of the event associated with the ticket
+    private String eventTitle;
 
+    // Indicates whether the ticket has been sold
+    private boolean isSold;
+
+    /**
+     * Default constructor for the Ticket class.
+     */
     public Ticket() {
     }
 
-    public Ticket(String eventName) {
-        this.eventName = eventName;
-        this.sold = false;
+    /**
+     * Constructs a new Ticket instance with the specified event title.
+     *
+     * @param eventTitle The name of the event associated with the ticket
+     */
+    public Ticket(String eventTitle) {
+        this.eventTitle = eventTitle;
+        this.isSold = false; // Initialize sold status to false
     }
 
-    public Long getId() {
-        return id;
+    /**
+     * Gets the unique identifier for the ticket.
+     *
+     * @return The ticket ID
+     */
+    public Long getTicketId() {
+        return ticketId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    /**
+     * Sets the unique identifier for the ticket.
+     *
+     * @param ticketId The new ticket ID
+     */
+    public void setTicketId(Long ticketId) {
+        this.ticketId = ticketId;
     }
 
-    public String getEventName() {
-        return eventName;
+    /**
+     * Gets the name of the event associated with the ticket.
+     *
+     * @return The event title
+     */
+    public String getEventTitle() {
+        return eventTitle;
     }
 
-    public void setEventName(String eventName) {
-        this.eventName = eventName;
+    /**
+     * Sets the name of the event associated with the ticket.
+     *
+     * @param eventTitle The new event title
+     */
+    public void setEventTitle(String eventTitle) {
+        this.eventTitle = eventTitle;
     }
 
+    /**
+     * Indicates whether the ticket has been sold.
+     *
+     * @return True if the ticket is sold, false otherwise
+     */
     public boolean isSold() {
-        return sold;
+        return isSold;
     }
 
-    public void setSold(boolean sold) {
-        this.sold = sold;
+    /**
+     * Sets the sold status of the ticket.
+     *
+     * @param isSold The new sold status
+     */
+    public void setSold(boolean isSold) {
+        this.isSold = isSold;
     }
 }
