@@ -1,8 +1,5 @@
-Here’s an example README file for your Spring Boot project with CLI functionality and MVC architecture:
 
----
-
-# Ticket Management System
+# Real Time Ticket Management System
 
 ## Introduction
 The **Ticket Management System** is a command-line interface (CLI) application that allows users to manage the release and purchase of tickets for events. The system supports dynamic configuration, ticket release at a specified rate, customer ticket retrieval, and various administrative operations such as starting and stopping the ticket release. The backend is built using **Spring Boot** and the **MVC architecture**. Data is persisted in a **MySQL database**, and the project leverages **Maven** for dependency management.
@@ -13,8 +10,8 @@ The **Ticket Management System** is a command-line interface (CLI) application t
 Before you begin, ensure you have the following installed:
 - **Java 17 or later**
   - You can download it from [Oracle's website](https://www.oracle.com/java/technologies/javase-jdk17-downloads.html) or use [OpenJDK](https://openjdk.java.net/).
-- **MySQL** (for the database)
-  - Download and install MySQL from [MySQL's website](https://dev.mysql.com/downloads/).
+- **H2** (for the database)
+  - Download and install H2 Console from [H2's website](https://www.h2database.com/html/main.html).
 - **Node.js** (for running the frontend, if applicable)
   - Download it from [Node.js website](https://nodejs.org/en/).
 - **Maven** (for building the project)
@@ -28,8 +25,8 @@ Before you begin, ensure you have the following installed:
    cd <project-directory>
    ```
 
-2. **Set up MySQL Database:**
-   - Create a database in MySQL, e.g., `ticket_management_system`.
+2. **Set up H2 Database:**
+   - Create a database in H2, e.g., `ticket_management_system`.
    - Ensure you have the necessary tables created according to the schema defined in your project.
 
 3. **Configure the Application:**
@@ -93,7 +90,3 @@ The **Ticket Management System** runs entirely through the CLI, so the user inte
 - **config**: Allows you to configure the system settings, either manually or by loading a configuration file.
 - **help**: Lists all available commands and their functions.
 - **exit**: Exits the application.
-
----
-
-This README gives users clear guidance on how to configure, start, and use your Ticket Management System. You can adjust the details based on your project’s specific configuration or features.
