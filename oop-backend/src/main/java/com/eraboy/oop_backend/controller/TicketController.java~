@@ -1,7 +1,7 @@
 package com.eraboy.oop_backend.controller;
 
 import com.eraboy.oop_backend.model.Ticket;
-import com.eraboy.oop_backend.service.TicketService;
+import com.example.oop.service.TicketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,7 +20,7 @@ public class TicketController {
 
     @GetMapping
     public List<Ticket> getTickets() {
-        return service.getAllTickets();
+        return service.getTickets();
     }
 
     @PostMapping("/{id}/sell")

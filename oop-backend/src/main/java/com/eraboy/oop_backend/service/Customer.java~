@@ -5,8 +5,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class Customer implements Runnable {
-    private final TicketService ticketService;
-    private final int retrievalRate;
+    private final com.example.oop.service.TicketService ticketService;
+    private final int retrievalRate; // Tickets per second
 
     @Autowired
     public Customer(TicketService ticketService) { //remove int customerRetrievalRate
@@ -18,8 +18,8 @@ public class Customer implements Runnable {
     public void run() {
         try {
             while (true) {
-
-                var tickets = ticketService.getAllTickets();
+                // Simulate purchasing the first available ticket
+                var tickets = ticketService.getTickets();
                 if (!tickets.isEmpty()) {
                     Long ticketId = tickets.get(0).getId();
                     ticketService.sellTicket(ticketId);

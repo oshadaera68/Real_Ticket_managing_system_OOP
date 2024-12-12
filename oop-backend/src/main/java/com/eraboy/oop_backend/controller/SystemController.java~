@@ -41,7 +41,7 @@ public class SystemController {
     }
 
     // Endpoint to get configuration settings
-    @GetMapping("/config")
+    @GetMapping("/configuration")
     public Configuration getConfiguration() {
         // Retrieve the configuration object
         return configuration;

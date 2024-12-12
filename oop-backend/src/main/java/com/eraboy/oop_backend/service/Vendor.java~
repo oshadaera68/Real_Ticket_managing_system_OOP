@@ -1,12 +1,13 @@
-package com.eraboy.oop_backend.service;
+package com.example.oop.service;
 
+import com.eraboy.oop_backend.service.TicketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class Vendor implements Runnable {
     private final TicketService ticketService;
-    private final int releaseRate;
+    private final int releaseRate; // Tickets per second
 
     @Autowired
     public Vendor(TicketService ticketService) {

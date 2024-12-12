@@ -2,19 +2,14 @@ package com.eraboy.oop_backend.model;
 
 import org.springframework.stereotype.Component;
 
-/**
- * Coded By: Era Boy
- * Version: v0.1.0
- **/
-
-@Component
+@Component  // Add this annotation to make it a Spring Bean
 public class Configuration {
     private int totalTickets;
     private int ticketReleaseRate;
     private int customerRetrievalRate;
     private int maxTicketCapacity;
 
-
+    // Getters and setters
     public int getTotalTickets() {
         return totalTickets;
     }
@@ -51,5 +46,4 @@ public class Configuration {
     public void saveToFile(String filePath) {
         // Logic for saving configuration to a file (e.g., JSON, XML)
     }
-
 }
